@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyGJU - Admin Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="employee-styles.css">
+</head>
+<body>
+    <!-- Left Side Background Image -->
+    <div class="left-bg">
+        <img src="Img/GJU-left-bg.png" alt="GJU Background">
+    </div>
+
+    <!-- Main Container with Shadow -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="Img/mygju.png" alt="MyGJU" class="header-logo">
+            <div class="header-right">
+                <img src="Img/logo-text.png" alt="GJU Logo" class="gju-logo">
+            </div>
+        </div>
+
+        <!-- User Info Bar -->
+        <div class="user-info-bar">
+            <span class="user-info">Welcome, Admin</span>
+            <button class="logout-btn">Logout</button>
+        </div>
+
+        <!-- Admin Portal Container -->
+        <div class="admin-container">
+            <div class="admin-box">
+                <h2 class="portal-title">Admin Portal</h2>
+
+                <!-- Tab Navigation -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+                    <button class="tab-btn" data-tab="books">Book Management</button>
+                    <button class="tab-btn" data-tab="students">Student Management</button>
+                    <button class="tab-btn" data-tab="loans">Loan Management</button>
+                </div>
+
+                <!-- Dashboard Tab -->
+                <div class="tab-content active" id="dashboard-tab">
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-books">0</div>
+                            <div class="stat-label">Total Books</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="available-books">0</div>
+                            <div class="stat-label">Available Books</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-students">0</div>
+                            <div class="stat-label">Total Students</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="active-loans">0</div>
+                            <div class="stat-label">Active Loans</div>
+                        </div>
+                    </div>
+
+                    <h3>Recent Activity</h3>
+                    <div class="activity-list" id="activity-list">
+                        <!-- Recent activities will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Books Management Tab -->
+                <div class="tab-content" id="books-tab">
+                    <div class="management-header">
+                        <h3>Book Management</h3>
+                        <button class="add-btn" id="add-book-btn">+ Add New Book</button>
+                    </div>
+
+                    <div class="books-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Cover</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>ISBN</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="books-table-body">
+                                <!-- Books will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Students Management Tab -->
+                <div class="tab-content" id="students-tab">
+                    <div class="management-header">
+                        <h3>Student Management</h3>
+                        <button class="add-btn" id="add-student-btn">+ Add New Student</button>
+                    </div>
+
+                    <div class="students-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Active Loans</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body">
+                                <!-- Students will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Loans Management Tab -->
+                <div class="tab-content" id="loans-tab">
+                    <h3>Loan Management</h3>
+
+                    <div class="filters">
+                        <select id="status-filter">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                        <input type="text" id="search-loan" placeholder="Search by book or student...">
+                    </div>
+
+                    <div class="loans-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Student</th>
+                                    <th>Borrowed Date</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loans-table-body">
+                                <!-- Loans will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Book Form Modal -->
+        <div class="modal" id="book-modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="book-modal">&times;</span>
+                <h3 id="book-modal-title">Add New Book</h3>
+                <form id="book-form">
+                    <div class="form-group">
+                        <label for="book-title">Title:</label>
+                        <input type="text" id="book-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-author">Author:</label>
+                        <input type="text" id="book-author" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-isbn">ISBN:</label>
+                        <input type="text" id="book-isbn" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-description">Description:</label>
+                        <textarea id="book-description" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-image">Image URL:</label>
+                        <input type="text" id="book-image">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Save Book</button>
+                        <button type="button" class="cancel-btn" data-modal="book-modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Student Form Modal -->
+        <div class="modal" id="student-modal">
+            <div class="modal-content">
+                <span class="close-btn" data-modal="student-modal">&times;</span>
+                <h3 id="student-modal-title">Add New Student</h3>
+                <form id="student-form">
+                    <div class="form-group">
+                        <label for="student-id">Student ID:</label>
+                        <input type="text" id="student-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-name">Full Name:</label>
+                        <input type="text" id="student-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-email">Email:</label>
+                        <input type="email" id="student-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="student-password">Password:</label>
+                        <input type="password" id="student-password" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Save Student</button>
+                        <button type="button" class="cancel-btn" data-modal="student-modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <span>© 2015 - 2025, German Jordanian University, all rights reserved.</span>
+            <span class="powered-by">
+                Powered by the University Computerization Project Team
+                <img src="Img/mygju.png" alt="GJU" class="footer-logo">
+            </span>
+        </footer>
+    </div>
+
+    <script src="employee-script.js"></script>
+</body>
+</html>

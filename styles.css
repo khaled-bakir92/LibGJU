@@ -1,0 +1,275 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 40px 20px;
+}
+
+/* Left Background Image */
+.left-bg {
+    position: fixed;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.left-bg img {
+    height: 500px;
+    width: auto;
+    opacity: 0.8;
+}
+
+/* Main Container with Shadow */
+.main-container {
+    width: 100%;
+    max-width: 900px;
+    background-color: #ffffff;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 50px;
+    background-color: #ffffff;
+}
+
+.header-logo {
+    height: 50px;
+    width: auto;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.arabic-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.english-text {
+    font-size: 14px;
+    color: #666;
+}
+
+.gju-logo {
+    height: 60px;
+    width: auto;
+    margin-left: 10px;
+}
+
+/* Login Container */
+.login-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 500px;
+    background-color: #ffffff;
+    padding: 50px 60px;
+    border-radius: 5px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1e88e5;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f5f5f5;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #1e88e5;
+    background-color: #ffffff;
+}
+
+.form-group input::placeholder {
+    color: #999;
+    font-family: Arial, sans-serif;
+}
+
+.form-group input[type="password"]::placeholder {
+    font-family: Arial, sans-serif;
+    letter-spacing: normal;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    margin-bottom: 15px;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-student {
+    background-color: #1e88e5;
+    color: white;
+}
+
+.btn-student:hover {
+    background-color: #1976d2;
+}
+
+.btn-employee {
+    background-color: #1e88e5;
+    color: white;
+}
+
+.btn-employee:hover {
+    background-color: #1976d2;
+}
+
+.info-text {
+    text-align: center;
+    color: #ff9800;
+    font-size: 14px;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+/* Footer */
+footer {
+    background-color: #3d3d3d;
+    color: #ffffff;
+    padding: 18px 50px;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.powered-by {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-logo {
+    height: 22px;
+    width: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .left-bg {
+        display: none;
+    }
+
+    .main-container {
+        margin-left: 0;
+    }
+
+    body {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px 30px;
+    }
+
+    .header-right {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .login-box {
+        padding: 40px 30px;
+    }
+
+    footer {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+        padding: 15px 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+
+    .header {
+        padding: 15px 20px;
+    }
+
+    .header-logo {
+        height: 40px;
+    }
+
+    .gju-logo {
+        height: 45px;
+    }
+
+    .login-box {
+        padding: 30px 20px;
+    }
+
+    footer {
+        padding: 12px 20px;
+        font-size: 10px;
+    }
+
+    .footer-logo {
+        height: 18px;
+    }
+}
