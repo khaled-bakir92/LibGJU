@@ -1,3 +1,6 @@
+// API Base URL
+const API_BASE = 'http://localhost/Projekt/api';
+
 // DOM Elements
 const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
@@ -44,39 +47,94 @@ passwordInput.addEventListener('keypress', function(e) {
 });
 
 // Login Handler Function
-function handleLogin(userType) {
-    const studentId = usernameInput.value.trim();
+async function handleLogin(userType) {
+    const email = usernameInput.value.trim();
     const password = passwordInput.value.trim();
 
     // Validation
-    if (!studentId) {
-        alert('Bitte geben Sie Ihre Student ID ein.');
+    if (!email) {
+        alert('Please enter your email.');
         usernameInput.focus();
         return;
     }
 
     if (!password) {
-        alert('Bitte geben Sie Ihr Passwort ein.');
+        alert('Please enter your password.');
         passwordInput.focus();
         return;
     }
 
-    // Simulate login process
-    console.log(`Login-Versuch - Typ: ${userType}, Student ID: ${studentId}`);
+    try {
+        // Show loading state
+        const button = userType === 'student' ? studentBtn : employeeBtn;
+        const originalText = button.textContent;
+        button.textContent = 'Logging in...';
+        button.disabled = true;
 
-    // Redirect based on user type
-    if (userType === 'student') {
-        // Redirect to student portal
-        window.location.href = 'student.html';
-    } else if (userType === 'employee') {
-        // Redirect to employee portal
-        window.location.href = 'employee.html';
+        // Call authentication API
+        const response = await fetch(`${API_BASE}/auth.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        const data = await response.json();
+
+        // Reset button
+        button.textContent = originalText;
+        button.disabled = false;
+
+        if (data.success) {
+            const user = data.user;
+
+            // Check user role matches login type
+            if (userType === 'student' && user.role !== 'student') {
+                alert('Invalid credentials for student login.');
+                return;
+            }
+
+            if (userType === 'employee' && (user.role !== 'admin' && user.role !== 'employee')) {
+                alert('Invalid credentials for employee login.');
+                return;
+            }
+
+            // Store user data in localStorage
+            localStorage.setItem('currentStudent', JSON.stringify({
+                id: user.id,
+                studentId: user.studentId,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }));
+
+            // Redirect based on user type
+            if (user.role === 'student') {
+                window.location.href = 'student.html';
+            } else if (user.role === 'admin' || user.role === 'employee') {
+                window.location.href = 'employee.html';
+            }
+        } else {
+            alert(data.message || 'Invalid email or password');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('Error connecting to server. Please try again.');
+
+        // Reset button state
+        const button = userType === 'student' ? studentBtn : employeeBtn;
+        button.textContent = userType === 'student' ? 'Student' : 'Employee';
+        button.disabled = false;
     }
-
-    // TODO: Backend-Integration für Authentifizierung mit Admin-verwalteten Credentials
 }
 
 // Initialize - Clear password field on page load
 window.addEventListener('load', function() {
     passwordInput.value = '';
+    // Clear any stored user data on login page
+    localStorage.removeItem('currentStudent');
 });

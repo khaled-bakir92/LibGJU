@@ -1,29 +1,20 @@
-// Sample Books Data
-const booksData = [
-    { id: 1, title: "Introduction to Algorithms", author: "Thomas H. Cormen", isbn: "978-0262033848", status: "available", description: "A comprehensive introduction to the modern study of computer algorithms.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780262033848-M.jpg" },
-    { id: 2, title: "Clean Code", author: "Robert C. Martin", isbn: "978-0132350884", status: "available", description: "A handbook of agile software craftsmanship.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780132350884-M.jpg" },
-    { id: 3, title: "Design Patterns", author: "Erich Gamma", isbn: "978-0201633610", status: "unavailable", description: "Elements of reusable object-oriented software.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780201633610-M.jpg" },
-    { id: 4, title: "The Pragmatic Programmer", author: "Andrew Hunt", isbn: "978-0135957059", status: "available", description: "Your journey to mastery.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780135957059-M.jpg" },
-    { id: 5, title: "Structure and Interpretation of Computer Programs", author: "Harold Abelson", isbn: "978-0262510871", status: "available", description: "A classic text in computer science.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780262510871-M.jpg" },
-    { id: 6, title: "Code Complete", author: "Steve McConnell", isbn: "978-0735619678", status: "unavailable", description: "A practical handbook of software construction.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780735619678-M.jpg" },
-    { id: 7, title: "Refactoring", author: "Martin Fowler", isbn: "978-0134757599", status: "available", description: "Improving the design of existing code.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780134757599-M.jpg" },
-    { id: 8, title: "Head First Design Patterns", author: "Eric Freeman", isbn: "978-0596007126", status: "available", description: "A brain-friendly guide to design patterns.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780596007126-M.jpg" },
-    { id: 9, title: "JavaScript: The Good Parts", author: "Douglas Crockford", isbn: "978-0596517748", status: "available", description: "Unearthing the excellence in JavaScript.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780596517748-M.jpg" },
-    { id: 10, title: "You Don't Know JS", author: "Kyle Simpson", isbn: "978-1491950357", status: "unavailable", description: "Deep dive into JavaScript.", imageUrl: "https://covers.openlibrary.org/b/isbn/9781491950357-M.jpg" },
-    { id: 11, title: "Eloquent JavaScript", author: "Marijn Haverbeke", isbn: "978-1593279509", status: "available", description: "A modern introduction to programming.", imageUrl: "https://covers.openlibrary.org/b/isbn/9781593279509-M.jpg" },
-    { id: 12, title: "Python Crash Course", author: "Eric Matthes", isbn: "978-1593279288", status: "available", description: "A hands-on, project-based introduction to programming.", imageUrl: "https://covers.openlibrary.org/b/isbn/9781593279288-M.jpg" }
-];
+// API Base URL
+const API_BASE = 'http://localhost/Projekt/api';
 
-// Sample Loans Data
-const loansData = [
-    { id: 1, bookId: 2, bookTitle: "Clean Code", borrowDate: "2025-01-05", dueDate: "2025-01-19", status: "active" },
-    { id: 2, bookId: 4, bookTitle: "The Pragmatic Programmer", borrowDate: "2025-01-01", dueDate: "2025-01-15", status: "overdue" }
-];
+// Current logged-in student (should be set from login)
+let currentStudent = JSON.parse(localStorage.getItem('currentStudent')) || {
+    studentId: 'S001',
+    name: 'John Doe'
+};
+
+// Data arrays (will be loaded from database)
+let booksData = [];
+let loansData = [];
 
 // Pagination variables
 let currentPage = 1;
 const booksPerPage = 6;
-let filteredBooks = [...booksData];
+let filteredBooks = [];
 
 // DOM Elements
 const tabBtns = document.querySelectorAll('.tab-btn');
@@ -40,10 +31,67 @@ const logoutBtn = document.querySelector('.logout-btn');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    renderBooks();
-    renderPagination();
-    renderLoans();
+    loadAllData();
 });
+
+// Load all data from backend
+async function loadAllData() {
+    try {
+        await Promise.all([
+            loadBooks(),
+            loadLoans()
+        ]);
+    } catch (error) {
+        console.error('Error loading data:', error);
+        alert('Error loading data from server');
+    }
+}
+
+// Load Books
+async function loadBooks() {
+    try {
+        const response = await fetch(`${API_BASE}/books.php`);
+        const data = await response.json();
+        if (data.success) {
+            booksData = data.data.map(book => ({
+                id: book.id,
+                title: book.title,
+                author: book.author,
+                isbn: book.isbn,
+                status: book.status,
+                description: book.description,
+                imageUrl: book.image_url
+            }));
+            filteredBooks = [...booksData];
+            renderBooks();
+            renderPagination();
+        }
+    } catch (error) {
+        console.error('Error loading books:', error);
+    }
+}
+
+// Load Loans for current student
+async function loadLoans() {
+    try {
+        const response = await fetch(`${API_BASE}/loans.php?student_id=${currentStudent.studentId}`);
+        const data = await response.json();
+        if (data.success) {
+            loansData = data.data.map(loan => ({
+                id: loan.id,
+                bookId: loan.book_id,
+                bookTitle: loan.book_title,
+                borrowDate: loan.borrow_date,
+                dueDate: loan.due_date,
+                status: loan.status,
+                imageUrl: loan.image_url
+            }));
+            renderLoans();
+        }
+    } catch (error) {
+        console.error('Error loading loans:', error);
+    }
+}
 
 // Tab Switching
 tabBtns.forEach(btn => {
@@ -168,6 +216,8 @@ function renderPagination() {
 
 // Show Book Detail Modal
 function showBookDetail(book) {
+    console.log('showBookDetail called for book:', book);
+
     bookDetailContainer.innerHTML = `
         <div class="book-detail-content">
             <img src="${book.imageUrl}" alt="${book.title}" class="book-detail-image" onerror="this.src='https://via.placeholder.com/200x300?text=No+Cover'">
@@ -178,40 +228,68 @@ function showBookDetail(book) {
                 <p><strong>Status:</strong> <span class="book-status ${book.status}">${book.status === 'available' ? 'Available' : 'Borrowed'}</span></p>
                 <p><strong>Description:</strong></p>
                 <p>${book.description}</p>
-                <button class="borrow-btn" ${book.status === 'unavailable' ? 'disabled' : ''} onclick="borrowBook(${book.id})">
+                <button class="borrow-btn" data-book-id="${book.id}" ${book.status === 'unavailable' ? 'disabled' : ''}>
                     ${book.status === 'available' ? 'Borrow Book' : 'Not Available'}
                 </button>
             </div>
         </div>
     `;
 
+    // Add event listener to borrow button
+    const borrowBtn = bookDetailContainer.querySelector('.borrow-btn');
+    console.log('Borrow button found:', borrowBtn);
+
+    if (borrowBtn && !borrowBtn.disabled) {
+        borrowBtn.addEventListener('click', () => {
+            console.log('Borrow button clicked! Book ID:', book.id);
+            borrowBook(book.id);
+        });
+        console.log('Event listener added to borrow button');
+    }
+
     modal.classList.add('active');
 }
 
 // Borrow Book
-function borrowBook(bookId) {
+async function borrowBook(bookId) {
+    console.log('borrowBook function called with ID:', bookId);
+    console.log('Current student:', currentStudent);
+
     const book = booksData.find(b => b.id === bookId);
-    if (book && book.status === 'available') {
-        alert(`You have successfully borrowed "${book.title}"!`);
-        book.status = 'unavailable';
+    console.log('Found book:', book);
 
-        // Add to loans
-        const today = new Date();
-        const dueDate = new Date(today);
-        dueDate.setDate(dueDate.getDate() + 14);
+    if (!book || book.status !== 'available') {
+        console.log('Book not available or not found');
+        return;
+    }
 
-        loansData.push({
-            id: loansData.length + 1,
-            bookId: book.id,
-            bookTitle: book.title,
-            borrowDate: today.toISOString().split('T')[0],
-            dueDate: dueDate.toISOString().split('T')[0],
-            status: 'active'
+    try {
+        console.log('Sending request to API...');
+        const response = await fetch(`${API_BASE}/loans.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                bookId: bookId,
+                studentId: currentStudent.studentId
+            })
         });
 
-        modal.classList.remove('active');
-        renderBooks();
-        renderLoans();
+        console.log('Response received:', response);
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (data.success) {
+            alert(`You have successfully borrowed "${book.title}"!\nDue date: ${data.due_date}`);
+            modal.classList.remove('active');
+            await loadAllData();
+        } else {
+            alert(data.message || 'Error borrowing book');
+        }
+    } catch (error) {
+        console.error('Error borrowing book:', error);
+        alert('Error borrowing book: ' + error.message);
     }
 }
 
@@ -225,14 +303,10 @@ function renderLoans() {
     }
 
     loansData.forEach(loan => {
-        // Find the book to get its image
-        const book = booksData.find(b => b.id === loan.bookId);
-        const bookImage = book ? book.imageUrl : 'https://via.placeholder.com/80x120?text=No+Cover';
-
         const loanCard = document.createElement('div');
         loanCard.className = 'loan-card';
         loanCard.innerHTML = `
-            <img src="${bookImage}" alt="${loan.bookTitle}" class="loan-book-image" onerror="this.src='https://via.placeholder.com/80x120?text=No+Cover'">
+            <img src="${loan.imageUrl}" alt="${loan.bookTitle}" class="loan-book-image" onerror="this.src='https://via.placeholder.com/80x120?text=No+Cover'">
             <div class="loan-info">
                 <div class="loan-title">${loan.bookTitle}</div>
                 <div class="loan-date">Borrowed on: ${formatDate(loan.borrowDate)} | Due on: ${formatDate(loan.dueDate)}</div>
@@ -264,6 +338,7 @@ window.addEventListener('click', (e) => {
 // Logout
 logoutBtn.addEventListener('click', () => {
     if (confirm('Do you really want to log out?')) {
+        localStorage.removeItem('currentStudent');
         window.location.href = 'login.html';
     }
 });

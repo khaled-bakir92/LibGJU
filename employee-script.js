@@ -1,43 +1,11 @@
-// Sample Books Data (shared with student portal)
-let booksData = [
-    { id: 1, title: "Introduction to Algorithms", author: "Thomas H. Cormen", isbn: "978-0262033848", status: "available", description: "A comprehensive introduction to the modern study of computer algorithms.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780262033848-M.jpg" },
-    { id: 2, title: "Clean Code", author: "Robert C. Martin", isbn: "978-0132350884", status: "unavailable", description: "A handbook of agile software craftsmanship.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780132350884-M.jpg" },
-    { id: 3, title: "Design Patterns", author: "Erich Gamma", isbn: "978-0201633610", status: "unavailable", description: "Elements of reusable object-oriented software.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780201633610-M.jpg" },
-    { id: 4, title: "The Pragmatic Programmer", author: "Andrew Hunt", isbn: "978-0135957059", status: "unavailable", description: "Your journey to mastery.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780135957059-M.jpg" },
-    { id: 5, title: "Structure and Interpretation of Computer Programs", author: "Harold Abelson", isbn: "978-0262510871", status: "available", description: "A classic text in computer science.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780262510871-M.jpg" },
-    { id: 6, title: "Code Complete", author: "Steve McConnell", isbn: "978-0735619678", status: "unavailable", description: "A practical handbook of software construction.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780735619678-M.jpg" },
-    { id: 7, title: "Refactoring", author: "Martin Fowler", isbn: "978-0134757599", status: "available", description: "Improving the design of existing code.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780134757599-M.jpg" },
-    { id: 8, title: "Head First Design Patterns", author: "Eric Freeman", isbn: "978-0596007126", status: "available", description: "A brain-friendly guide to design patterns.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780596007126-M.jpg" },
-    { id: 9, title: "JavaScript: The Good Parts", author: "Douglas Crockford", isbn: "978-0596517748", status: "available", description: "Unearthing the excellence in JavaScript.", imageUrl: "https://covers.openlibrary.org/b/isbn/9780596517748-M.jpg" },
-    { id: 10, title: "You Don't Know JS", author: "Kyle Simpson", isbn: "978-1491950357", status: "unavailable", description: "Deep dive into JavaScript.", imageUrl: "https://covers.openlibrary.org/b/isbn/9781491950357-M.jpg" },
-    { id: 11, title: "Eloquent JavaScript", author: "Marijn Haverbeke", isbn: "978-1593279509", status: "available", description: "A modern introduction to programming.", imageUrl: "https://covers.openlibrary.org/b/isbn/9781593279509-M.jpg" },
-    { id: 12, title: "Python Crash Course", author: "Eric Matthes", isbn: "978-1593279288", status: "available", description: "A hands-on, project-based introduction to programming.", imageUrl: "https://covers.openlibrary.org/b/isbn/9781593279288-M.jpg" }
-];
+// API Base URL
+const API_BASE = 'http://localhost/Projekt/api';
 
-// Sample Students Data
-let studentsData = [
-    { id: 1, studentId: "S001", name: "John Doe", email: "john.doe@gju.edu.jo", password: "pass123", activeLoans: 2 },
-    { id: 2, studentId: "S002", name: "Jane Smith", email: "jane.smith@gju.edu.jo", password: "pass123", activeLoans: 1 },
-    { id: 3, studentId: "S003", name: "Ali Hassan", email: "ali.hassan@gju.edu.jo", password: "pass123", activeLoans: 0 },
-    { id: 4, studentId: "S004", name: "Sara Ahmed", email: "sara.ahmed@gju.edu.jo", password: "pass123", activeLoans: 1 }
-];
-
-// Sample Loans Data
-let loansData = [
-    { id: 1, bookId: 2, bookTitle: "Clean Code", studentId: "S001", studentName: "John Doe", borrowDate: "2025-01-05", dueDate: "2025-01-19", status: "active" },
-    { id: 2, bookId: 4, bookTitle: "The Pragmatic Programmer", studentId: "S001", studentName: "John Doe", borrowDate: "2025-01-01", dueDate: "2025-01-15", status: "overdue" },
-    { id: 3, bookId: 3, bookTitle: "Design Patterns", studentId: "S002", studentName: "Jane Smith", borrowDate: "2025-01-10", dueDate: "2025-01-24", status: "active" },
-    { id: 4, bookId: 6, bookTitle: "Code Complete", studentId: "S004", studentName: "Sara Ahmed", borrowDate: "2024-12-20", dueDate: "2025-01-03", status: "overdue" },
-    { id: 5, bookId: 10, bookTitle: "You Don't Know JS", studentId: "S002", studentName: "Jane Smith", borrowDate: "2025-01-08", dueDate: "2025-01-22", status: "active" }
-];
-
-// Activity Log
-let activityLog = [
-    { text: "John Doe borrowed 'The Pragmatic Programmer'", time: "2 hours ago" },
-    { text: "New book 'Clean Code' added to library", time: "5 hours ago" },
-    { text: "Sara Ahmed returned 'Design Patterns'", time: "1 day ago" },
-    { text: "New student 'Ali Hassan' registered", time: "2 days ago" }
-];
+// Data arrays (will be loaded from database)
+let booksData = [];
+let studentsData = [];
+let loansData = [];
+let activityLog = [];
 
 // Current editing IDs
 let editingBookId = null;
@@ -71,13 +39,124 @@ const searchLoan = document.getElementById('search-loan');
 const closeBtns = document.querySelectorAll('.close-btn');
 const cancelBtns = document.querySelectorAll('.cancel-btn');
 
-// Initialize
+// Initialize - Load data from database
 document.addEventListener('DOMContentLoaded', function() {
-    renderDashboard();
-    renderBooksTable();
-    renderStudentsTable();
-    renderLoansTable();
+    loadAllData();
 });
+
+// Load all data from backend
+async function loadAllData() {
+    try {
+        await Promise.all([
+            loadBooks(),
+            loadStudents(),
+            loadLoans(),
+            loadActivities(),
+            loadStats()
+        ]);
+    } catch (error) {
+        console.error('Error loading data:', error);
+        alert('Error loading data from server');
+    }
+}
+
+// Load Books
+async function loadBooks() {
+    try {
+        const response = await fetch(`${API_BASE}/books.php`);
+        const data = await response.json();
+        if (data.success) {
+            booksData = data.data.map(book => ({
+                id: book.id,
+                title: book.title,
+                author: book.author,
+                isbn: book.isbn,
+                status: book.status,
+                description: book.description,
+                imageUrl: book.image_url
+            }));
+            renderBooksTable();
+        }
+    } catch (error) {
+        console.error('Error loading books:', error);
+    }
+}
+
+// Load Students
+async function loadStudents() {
+    try {
+        const response = await fetch(`${API_BASE}/users.php`);
+        const data = await response.json();
+        if (data.success) {
+            studentsData = data.data.map(user => ({
+                id: user.id,
+                studentId: user.student_id,
+                name: user.name,
+                email: user.email,
+                password: '', // Don't store password in frontend
+                activeLoans: user.active_loans
+            }));
+            renderStudentsTable();
+        }
+    } catch (error) {
+        console.error('Error loading students:', error);
+    }
+}
+
+// Load Loans
+async function loadLoans() {
+    try {
+        const response = await fetch(`${API_BASE}/loans.php`);
+        const data = await response.json();
+        if (data.success) {
+            loansData = data.data.map(loan => ({
+                id: loan.id,
+                bookId: loan.book_id,
+                bookTitle: loan.book_title,
+                studentId: loan.student_id,
+                studentName: loan.student_name,
+                borrowDate: loan.borrow_date,
+                dueDate: loan.due_date,
+                status: loan.status,
+                imageUrl: loan.image_url
+            }));
+            renderLoansTable();
+        }
+    } catch (error) {
+        console.error('Error loading loans:', error);
+    }
+}
+
+// Load Activities
+async function loadActivities() {
+    try {
+        const response = await fetch(`${API_BASE}/activity.php`);
+        const data = await response.json();
+        if (data.success) {
+            activityLog = data.data;
+            renderDashboard();
+        }
+    } catch (error) {
+        console.error('Error loading activities:', error);
+    }
+}
+
+// Load Statistics
+async function loadStats() {
+    try {
+        const response = await fetch(`${API_BASE}/stats.php`);
+        const data = await response.json();
+        if (data.success) {
+            const stats = data.data;
+            document.getElementById('total-books').textContent = stats.totalBooks;
+            document.getElementById('available-books').textContent = stats.availableBooks;
+            document.getElementById('total-students').textContent = stats.totalStudents;
+            document.getElementById('active-loans').textContent = stats.activeLoans;
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+}
 
 // Tab Switching
 tabBtns.forEach(btn => {
@@ -94,12 +173,6 @@ tabBtns.forEach(btn => {
 
 // ==================== DASHBOARD ====================
 function renderDashboard() {
-    // Update statistics
-    document.getElementById('total-books').textContent = booksData.length;
-    document.getElementById('available-books').textContent = booksData.filter(b => b.status === 'available').length;
-    document.getElementById('total-students').textContent = studentsData.length;
-    document.getElementById('active-loans').textContent = loansData.filter(l => l.status === 'active' || l.status === 'overdue').length;
-
     // Render activity log
     const activityList = document.getElementById('activity-list');
     activityList.innerHTML = '';
@@ -167,24 +240,34 @@ function editBook(bookId) {
 }
 
 // Delete Book
-function deleteBook(bookId) {
+async function deleteBook(bookId) {
     if (!confirm('Are you sure you want to delete this book?')) return;
 
-    // Check if book is borrowed
-    const isLoanActive = loansData.some(loan => loan.bookId === bookId && (loan.status === 'active' || loan.status === 'overdue'));
-    if (isLoanActive) {
-        alert('Cannot delete book. It is currently borrowed.');
-        return;
-    }
+    try {
+        const response = await fetch(`${API_BASE}/books.php`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: bookId })
+        });
 
-    booksData = booksData.filter(b => b.id !== bookId);
-    renderBooksTable();
-    renderDashboard();
-    addActivity(`Book deleted from library`);
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Book deleted successfully');
+            await loadAllData();
+        } else {
+            alert(data.message || 'Error deleting book');
+        }
+    } catch (error) {
+        console.error('Error deleting book:', error);
+        alert('Error deleting book');
+    }
 }
 
 // Save Book (Add or Edit)
-bookForm.addEventListener('submit', (e) => {
+bookForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const title = document.getElementById('book-title').value.trim();
@@ -198,36 +281,51 @@ bookForm.addEventListener('submit', (e) => {
         imageUrl = `https://covers.openlibrary.org/b/isbn/${isbn.replace(/-/g, '')}-M.jpg`;
     }
 
-    if (editingBookId) {
-        // Edit existing book
-        const book = booksData.find(b => b.id === editingBookId);
-        if (book) {
-            book.title = title;
-            book.author = author;
-            book.isbn = isbn;
-            book.description = description;
-            book.imageUrl = imageUrl;
-            addActivity(`Book '${title}' updated`);
-        }
-    } else {
-        // Add new book
-        const newId = booksData.length > 0 ? Math.max(...booksData.map(b => b.id)) + 1 : 1;
-        booksData.push({
-            id: newId,
-            title,
-            author,
-            isbn,
-            status: 'available',
-            description,
-            imageUrl
-        });
-        addActivity(`New book '${title}' added to library`);
-    }
+    const bookData = {
+        title,
+        author,
+        isbn,
+        description,
+        imageUrl
+    };
 
-    renderBooksTable();
-    renderDashboard();
-    bookModal.classList.remove('active');
-    bookForm.reset();
+    try {
+        let response;
+        if (editingBookId) {
+            // Edit existing book
+            bookData.id = editingBookId;
+            response = await fetch(`${API_BASE}/books.php`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookData)
+            });
+        } else {
+            // Add new book
+            response = await fetch(`${API_BASE}/books.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookData)
+            });
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert(editingBookId ? 'Book updated successfully' : 'Book added successfully');
+            bookModal.classList.remove('active');
+            bookForm.reset();
+            await loadAllData();
+        } else {
+            alert(data.message || 'Error saving book');
+        }
+    } catch (error) {
+        console.error('Error saving book:', error);
+        alert('Error saving book');
+    }
 });
 
 // ==================== STUDENTS MANAGEMENT ====================
@@ -269,7 +367,7 @@ function editStudent(studentId) {
     document.getElementById('student-id').value = student.studentId;
     document.getElementById('student-name').value = student.name;
     document.getElementById('student-email').value = student.email;
-    document.getElementById('student-password').value = student.password;
+    document.getElementById('student-password').value = 'password123'; // Placeholder
 
     // Disable student ID field when editing
     document.getElementById('student-id').disabled = true;
@@ -278,26 +376,37 @@ function editStudent(studentId) {
 }
 
 // Delete Student
-function deleteStudent(studentId) {
+async function deleteStudent(studentId) {
     const student = studentsData.find(s => s.id === studentId);
     if (!student) return;
 
     if (!confirm(`Are you sure you want to delete student ${student.name}?`)) return;
 
-    // Check if student has active loans
-    if (student.activeLoans > 0) {
-        alert('Cannot delete student. They have active loans.');
-        return;
-    }
+    try {
+        const response = await fetch(`${API_BASE}/users.php`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: studentId })
+        });
 
-    studentsData = studentsData.filter(s => s.id !== studentId);
-    renderStudentsTable();
-    renderDashboard();
-    addActivity(`Student '${student.name}' deleted`);
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Student deleted successfully');
+            await loadAllData();
+        } else {
+            alert(data.message || 'Error deleting student');
+        }
+    } catch (error) {
+        console.error('Error deleting student:', error);
+        alert('Error deleting student');
+    }
 }
 
 // Save Student (Add or Edit)
-studentForm.addEventListener('submit', (e) => {
+studentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const studentId = document.getElementById('student-id').value.trim();
@@ -305,48 +414,59 @@ studentForm.addEventListener('submit', (e) => {
     const email = document.getElementById('student-email').value.trim();
     const password = document.getElementById('student-password').value.trim();
 
-    if (editingStudentId) {
-        // Edit existing student
-        const student = studentsData.find(s => s.id === editingStudentId);
-        if (student) {
-            student.name = name;
-            student.email = email;
-            student.password = password;
-            addActivity(`Student '${name}' updated`);
-        }
-        // Re-enable student ID field
-        document.getElementById('student-id').disabled = false;
-    } else {
-        // Check if student ID already exists
-        if (studentsData.some(s => s.studentId === studentId)) {
-            alert('Student ID already exists!');
-            return;
+    const studentData = {
+        name,
+        email,
+        password
+    };
+
+    try {
+        let response;
+        if (editingStudentId) {
+            // Edit existing student
+            studentData.id = editingStudentId;
+            response = await fetch(`${API_BASE}/users.php`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(studentData)
+            });
+            // Re-enable student ID field
+            document.getElementById('student-id').disabled = false;
+        } else {
+            // Add new student
+            studentData.studentId = studentId;
+            response = await fetch(`${API_BASE}/users.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(studentData)
+            });
         }
 
-        // Add new student
-        const newId = studentsData.length > 0 ? Math.max(...studentsData.map(s => s.id)) + 1 : 1;
-        studentsData.push({
-            id: newId,
-            studentId,
-            name,
-            email,
-            password,
-            activeLoans: 0
-        });
-        addActivity(`New student '${name}' registered`);
+        const data = await response.json();
+
+        if (data.success) {
+            alert(editingStudentId ? 'Student updated successfully' : 'Student added successfully');
+            studentModal.classList.remove('active');
+            studentForm.reset();
+            await loadAllData();
+        } else {
+            alert(data.message || 'Error saving student');
+        }
+    } catch (error) {
+        console.error('Error saving student:', error);
+        alert('Error saving student');
     }
-
-    renderStudentsTable();
-    renderDashboard();
-    studentModal.classList.remove('active');
-    studentForm.reset();
 });
 
 // ==================== LOANS MANAGEMENT ====================
 function renderLoansTable(filter = 'all', searchTerm = '') {
     loansTableBody.innerHTML = '';
 
-    let filteredLoans = loansData;
+    let filteredLoans = loansData.filter(loan => loan.status !== 'returned');
 
     // Apply status filter
     if (filter !== 'all') {
@@ -385,32 +505,33 @@ function renderLoansTable(filter = 'all', searchTerm = '') {
 }
 
 // Return Book
-function returnBook(loanId) {
+async function returnBook(loanId) {
     const loan = loansData.find(l => l.id === loanId);
     if (!loan) return;
 
     if (!confirm(`Mark book '${loan.bookTitle}' as returned?`)) return;
 
-    // Update book status
-    const book = booksData.find(b => b.id === loan.bookId);
-    if (book) {
-        book.status = 'available';
+    try {
+        const response = await fetch(`${API_BASE}/loans.php`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ loanId: loanId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Book returned successfully');
+            await loadAllData();
+        } else {
+            alert(data.message || 'Error returning book');
+        }
+    } catch (error) {
+        console.error('Error returning book:', error);
+        alert('Error returning book');
     }
-
-    // Update student active loans count
-    const student = studentsData.find(s => s.studentId === loan.studentId);
-    if (student && student.activeLoans > 0) {
-        student.activeLoans--;
-    }
-
-    // Remove loan from list
-    loansData = loansData.filter(l => l.id !== loanId);
-
-    renderLoansTable();
-    renderBooksTable();
-    renderStudentsTable();
-    renderDashboard();
-    addActivity(`${loan.studentName} returned '${loan.bookTitle}'`);
 }
 
 // Loan Filters
@@ -426,18 +547,6 @@ searchLoan.addEventListener('input', () => {
 function formatDate(dateString) {
     const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
     return new Date(dateString).toLocaleDateString('en-US', options);
-}
-
-function addActivity(text) {
-    activityLog.unshift({
-        text: text,
-        time: 'Just now'
-    });
-    // Keep only last 10 activities
-    if (activityLog.length > 10) {
-        activityLog = activityLog.slice(0, 10);
-    }
-    renderDashboard();
 }
 
 // ==================== MODAL CONTROLS ====================
