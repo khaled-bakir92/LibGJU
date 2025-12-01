@@ -67,7 +67,7 @@ async function loadBooks() {
         const data = await response.json();
         if (data.success) {
             booksData = data.data.map(book => ({
-                id: book.id,
+                id: parseInt(book.id),
                 title: book.title,
                 author: book.author,
                 isbn: book.isbn,
@@ -89,11 +89,11 @@ async function loadStudents() {
         const data = await response.json();
         if (data.success) {
             studentsData = data.data.map(user => ({
-                id: user.id,
+                id: parseInt(user.id),
                 studentId: user.student_id,
                 name: user.name,
                 email: user.email,
-                password: '', // Don't store password in frontend
+                password: user.password || '',
                 activeLoans: user.active_loans
             }));
             renderStudentsTable();
@@ -110,8 +110,8 @@ async function loadLoans() {
         const data = await response.json();
         if (data.success) {
             loansData = data.data.map(loan => ({
-                id: loan.id,
-                bookId: loan.book_id,
+                id: parseInt(loan.id),
+                bookId: parseInt(loan.book_id),
                 bookTitle: loan.book_title,
                 studentId: loan.student_id,
                 studentName: loan.student_name,
@@ -223,7 +223,7 @@ addBookBtn.addEventListener('click', () => {
 });
 
 // Edit Book
-function editBook(bookId) {
+window.editBook = function(bookId) {
     const book = booksData.find(b => b.id === bookId);
     if (!book) return;
 
@@ -240,7 +240,7 @@ function editBook(bookId) {
 }
 
 // Delete Book
-async function deleteBook(bookId) {
+window.deleteBook = async function(bookId) {
     if (!confirm('Are you sure you want to delete this book?')) return;
 
     try {
@@ -357,7 +357,7 @@ addStudentBtn.addEventListener('click', () => {
 });
 
 // Edit Student
-function editStudent(studentId) {
+window.editStudent = function(studentId) {
     const student = studentsData.find(s => s.id === studentId);
     if (!student) return;
 
@@ -367,16 +367,13 @@ function editStudent(studentId) {
     document.getElementById('student-id').value = student.studentId;
     document.getElementById('student-name').value = student.name;
     document.getElementById('student-email').value = student.email;
-    document.getElementById('student-password').value = 'password123'; // Placeholder
-
-    // Disable student ID field when editing
-    document.getElementById('student-id').disabled = true;
+    document.getElementById('student-password').value = student.password;
 
     studentModal.classList.add('active');
 }
 
 // Delete Student
-async function deleteStudent(studentId) {
+window.deleteStudent = async function(studentId) {
     const student = studentsData.find(s => s.id === studentId);
     if (!student) return;
 
@@ -425,6 +422,7 @@ studentForm.addEventListener('submit', async (e) => {
         if (editingStudentId) {
             // Edit existing student
             studentData.id = editingStudentId;
+            studentData.studentId = studentId; // Include student_id for update
             response = await fetch(`${API_BASE}/users.php`, {
                 method: 'PUT',
                 headers: {
@@ -432,8 +430,6 @@ studentForm.addEventListener('submit', async (e) => {
                 },
                 body: JSON.stringify(studentData)
             });
-            // Re-enable student ID field
-            document.getElementById('student-id').disabled = false;
         } else {
             // Add new student
             studentData.studentId = studentId;
@@ -505,7 +501,7 @@ function renderLoansTable(filter = 'all', searchTerm = '') {
 }
 
 // Return Book
-async function returnBook(loanId) {
+window.returnBook = async function(loanId) {
     const loan = loansData.find(l => l.id === loanId);
     if (!loan) return;
 
@@ -554,10 +550,6 @@ closeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         const modalId = btn.getAttribute('data-modal');
         document.getElementById(modalId).classList.remove('active');
-        // Re-enable student ID field if it was disabled
-        if (modalId === 'student-modal') {
-            document.getElementById('student-id').disabled = false;
-        }
     });
 });
 
@@ -565,10 +557,6 @@ cancelBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         const modalId = btn.getAttribute('data-modal');
         document.getElementById(modalId).classList.remove('active');
-        // Re-enable student ID field if it was disabled
-        if (modalId === 'student-modal') {
-            document.getElementById('student-id').disabled = false;
-        }
     });
 });
 
@@ -576,7 +564,6 @@ cancelBtns.forEach(btn => {
 window.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal')) {
         e.target.classList.remove('active');
-        document.getElementById('student-id').disabled = false;
     }
 });
 

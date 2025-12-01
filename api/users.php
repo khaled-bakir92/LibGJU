@@ -28,17 +28,17 @@ switch ($method) {
         // Get all users or a single user
         if (isset($_GET['id'])) {
             $id = $_GET['id'];
-            $query = "SELECT id, student_id, name, email, role, active_loans, created_at FROM users WHERE id = :id";
+            $query = "SELECT id, student_id, name, email, password, role, active_loans, created_at FROM users WHERE id = :id";
             $stmt = $db->prepare($query);
             $stmt->bindParam(":id", $id);
         } elseif (isset($_GET['student_id'])) {
             $studentId = $_GET['student_id'];
-            $query = "SELECT id, student_id, name, email, role, active_loans, created_at FROM users WHERE student_id = :student_id";
+            $query = "SELECT id, student_id, name, email, password, role, active_loans, created_at FROM users WHERE student_id = :student_id";
             $stmt = $db->prepare($query);
             $stmt->bindParam(":student_id", $studentId);
         } else {
             // Get all students (exclude admin/employee)
-            $query = "SELECT id, student_id, name, email, role, active_loans, created_at FROM users WHERE role = 'student' ORDER BY created_at DESC";
+            $query = "SELECT id, student_id, name, email, password, role, active_loans, created_at FROM users WHERE role = 'student' ORDER BY created_at DESC";
             $stmt = $db->prepare($query);
         }
 
@@ -115,15 +115,45 @@ switch ($method) {
         $data = json_decode(file_get_contents("php://input"));
 
         if (!empty($data->id) && !empty($data->name) && !empty($data->email)) {
-            $query = "UPDATE users
-                      SET name = :name, email = :email, password = :password
-                      WHERE id = :id";
+            // Check if student_id is being updated and if it already exists
+            if (!empty($data->studentId)) {
+                $checkQuery = "SELECT COUNT(*) as count FROM users WHERE student_id = :student_id AND id != :id";
+                $checkStmt = $db->prepare($checkQuery);
+                $checkStmt->bindParam(":student_id", $data->studentId);
+                $checkStmt->bindParam(":id", $data->id);
+                $checkStmt->execute();
+                $result = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
-            $stmt = $db->prepare($query);
-            $stmt->bindParam(":id", $data->id);
-            $stmt->bindParam(":name", $data->name);
-            $stmt->bindParam(":email", $data->email);
-            $stmt->bindParam(":password", $data->password);
+                if ($result['count'] > 0) {
+                    http_response_code(400);
+                    echo json_encode(array(
+                        "success" => false,
+                        "message" => "Student ID already exists"
+                    ));
+                    break;
+                }
+
+                $query = "UPDATE users
+                          SET student_id = :student_id, name = :name, email = :email, password = :password
+                          WHERE id = :id";
+
+                $stmt = $db->prepare($query);
+                $stmt->bindParam(":id", $data->id);
+                $stmt->bindParam(":student_id", $data->studentId);
+                $stmt->bindParam(":name", $data->name);
+                $stmt->bindParam(":email", $data->email);
+                $stmt->bindParam(":password", $data->password);
+            } else {
+                $query = "UPDATE users
+                          SET name = :name, email = :email, password = :password
+                          WHERE id = :id";
+
+                $stmt = $db->prepare($query);
+                $stmt->bindParam(":id", $data->id);
+                $stmt->bindParam(":name", $data->name);
+                $stmt->bindParam(":email", $data->email);
+                $stmt->bindParam(":password", $data->password);
+            }
 
             if ($stmt->execute()) {
                 // Log activity
