@@ -1,5 +1,5 @@
 // API Base URL
-const API_BASE = 'http://localhost/Projekt/api';
+const API_BASE = 'http://localhost/Projekt/backend/api';
 
 // DOM Elements
 const usernameInput = document.getElementById('username');
@@ -8,39 +8,39 @@ const studentBtn = document.querySelector('.btn-student');
 const employeeBtn = document.querySelector('.btn-employee');
 
 // Clear placeholder password on focus
-passwordInput.addEventListener('focus', function() {
+passwordInput.addEventListener('focus', function () {
     if (this.value === '') {
         this.value = '';
     }
 });
 
 // Restore placeholder if empty
-passwordInput.addEventListener('blur', function() {
+passwordInput.addEventListener('blur', function () {
     if (this.value === '') {
         this.value = '';
     }
 });
 
 // Login as Student
-studentBtn.addEventListener('click', function(e) {
+studentBtn.addEventListener('click', function (e) {
     e.preventDefault();
     handleLogin('student');
 });
 
 // Login as Employee
-employeeBtn.addEventListener('click', function(e) {
+employeeBtn.addEventListener('click', function (e) {
     e.preventDefault();
     handleLogin('employee');
 });
 
 // Handle Enter key press
-usernameInput.addEventListener('keypress', function(e) {
+usernameInput.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         handleLogin('student');
     }
 });
 
-passwordInput.addEventListener('keypress', function(e) {
+passwordInput.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         handleLogin('student');
     }
@@ -133,7 +133,7 @@ async function handleLogin(userType) {
 }
 
 // Initialize - Clear password field on page load
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     passwordInput.value = '';
     // Clear any stored user data on login page
     localStorage.removeItem('currentStudent');

@@ -1,5 +1,5 @@
 // API Base URL
-const API_BASE = 'http://localhost/Projekt/api';
+const API_BASE = 'http://localhost/Projekt/backend/api';
 
 // Current logged-in student (should be set from login)
 let currentStudent = JSON.parse(localStorage.getItem('currentStudent')) || {
@@ -30,7 +30,7 @@ const bookDetailContainer = document.getElementById('book-detail');
 const logoutBtn = document.querySelector('.logout-btn');
 
 // Initialize
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadAllData();
 });
 
@@ -95,7 +95,7 @@ async function loadLoans() {
 
 // Tab Switching
 tabBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
         const tabName = this.getAttribute('data-tab');
 
         // Remove active class from all tabs and contents
@@ -110,7 +110,7 @@ tabBtns.forEach(btn => {
 
 // Search Functionality
 searchBtn.addEventListener('click', performSearch);
-searchInput.addEventListener('keypress', function(e) {
+searchInput.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         performSearch();
     }

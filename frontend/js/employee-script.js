@@ -1,5 +1,5 @@
 // API Base URL
-const API_BASE = 'http://localhost/Projekt/api';
+const API_BASE = 'http://localhost/Projekt/backend/api';
 
 // Data arrays (will be loaded from database)
 let booksData = [];
@@ -40,7 +40,7 @@ const closeBtns = document.querySelectorAll('.close-btn');
 const cancelBtns = document.querySelectorAll('.cancel-btn');
 
 // Initialize - Load data from database
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadAllData();
 });
 
@@ -160,7 +160,7 @@ async function loadStats() {
 
 // Tab Switching
 tabBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
         const tabName = this.getAttribute('data-tab');
 
         tabBtns.forEach(b => b.classList.remove('active'));
@@ -223,7 +223,7 @@ addBookBtn.addEventListener('click', () => {
 });
 
 // Edit Book
-window.editBook = function(bookId) {
+window.editBook = function (bookId) {
     const book = booksData.find(b => b.id === bookId);
     if (!book) return;
 
@@ -240,7 +240,7 @@ window.editBook = function(bookId) {
 }
 
 // Delete Book
-window.deleteBook = async function(bookId) {
+window.deleteBook = async function (bookId) {
     if (!confirm('Are you sure you want to delete this book?')) return;
 
     try {
@@ -357,7 +357,7 @@ addStudentBtn.addEventListener('click', () => {
 });
 
 // Edit Student
-window.editStudent = function(studentId) {
+window.editStudent = function (studentId) {
     const student = studentsData.find(s => s.id === studentId);
     if (!student) return;
 
@@ -373,7 +373,7 @@ window.editStudent = function(studentId) {
 }
 
 // Delete Student
-window.deleteStudent = async function(studentId) {
+window.deleteStudent = async function (studentId) {
     const student = studentsData.find(s => s.id === studentId);
     if (!student) return;
 
@@ -501,7 +501,7 @@ function renderLoansTable(filter = 'all', searchTerm = '') {
 }
 
 // Return Book
-window.returnBook = async function(loanId) {
+window.returnBook = async function (loanId) {
     const loan = loansData.find(l => l.id === loanId);
     if (!loan) return;
 
